@@ -291,9 +291,11 @@ OLED_err OLED_put_rectangle(OLED *oled, uint8_t x_from, uint8_t y_from, uint8_t 
 *   @region: the information(bytes) which you want to put in frame-buffer
 *   @x_size_region: width of the region
 *   @y_size_region: height of the region
-*   @flag: starts from 0 and ends with 3, used to configurate which operation *     with bytes will be made.
+*   @flag: starts from 0 and ends with 3, used to configurate which operation 
+*    with bytes will be made.
 *
-*   That function uses bitmask operations to put the region on the frame         *   buffer
+*   That function uses bitmask operations to put the region on the frame         
+*   buffer
 *
 */
 void OLED_put_masked_region(OLED *oled,uint8_t x,uint8_t y,uint8_t *region,uint8_t x_size_region,uint8_t y_size_region,enum OLED_mask flag);
