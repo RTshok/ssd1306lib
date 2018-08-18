@@ -333,3 +333,56 @@ OLED_err OLED_put_rectangle(OLED *oled, uint8_t x_from, uint8_t y_from, uint8_t 
 
 	return OLED_EOK;
 }
+void OLED_put_masked_region(OLED *oled,uint8_t x,uint8_t y,uint8_t *region,uint8_t x_size_region,uint8_t y_size_region,enum OLED_mask flag){
+	if(y_size_region > 64 || x_size_region > 128)
+	return;
+
+	uint8_t remnant = 0;
+	if((y_size_region % 8)!= 0){
+
+		 	remnant = y_size_region % 8;
+			/* if y_size_region == 39, the remnant is 7.So we don't need to jump on new page for drawing. */
+			/* 4 pages will be enough (32/8) */
+			y_size_region = y_size_region - remnant ;
+			
+	}
+		
+	uint16_t byte_num = (y / 8) * (uint16_t)oled->width + x;
+	uint8_t page = y_size_region / 8;
+	/* Multiply by 128 to come back on the same place but page lower */
+	/* Replaces pixels from region to fb */
+	if (flag == 0)
+	{	for(uint8_t page_cnt = 0;page_cnt <page ; page_cnt++){ 
+			for(uint8_t i = 0; i< x_size_region;i++){
+			/* Multiply by 128 to come back on the same place but page lower */
+			oled->frame_buffer[byte_num+i+(page_cnt*128)] = region[i+(page_cnt*x_size_region)];
+			}
+		}	
+	}
+	/* Put pixels from region on fb using OR (adds)*/
+	if (flag == 1)
+	{	for(uint8_t page_cnt = 0;page_cnt <page ; page_cnt++){ 
+			for(uint8_t i = 0; i< x_size_region;i++){
+			oled->frame_buffer[byte_num+i+(page_cnt*128)] |= region[i+(page_cnt*x_size_region)];
+			}
+		}	
+	}
+	/* Put pixels from region on fb using NAND (subtracts) */
+	if (flag == 2)
+	{	for(uint8_t page_cnt = 0;page_cnt <page ; page_cnt++){ 
+			for(uint8_t i = 0; i< x_size_region;i++){
+			oled->frame_buffer[byte_num+i+(page_cnt*128)] &= ~region[i+(page_cnt*x_size_region)];
+			}
+		}	
+	}
+
+	/* Put pixels from region on fb using XOR (intersects) */
+	if(flag == 3)
+	{	for(uint8_t page_cnt = 0;page_cnt <page ; page_cnt++){ 
+			for(uint8_t i = 0; i< x_size_region;i++){
+			oled->frame_buffer[byte_num+i+(page_cnt*128)] ^= region[i+(page_cnt*x_size_region)];
+			}
+		}	
+	}
+	
+}

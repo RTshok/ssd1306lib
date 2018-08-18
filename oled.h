@@ -68,7 +68,15 @@ enum OLED_params {
 	OLED_NO_FILL = 0x00,		/* Do not fill the drawn area */
 	OLED_FILL = 0x02		/* Fill the area	      */
 };
+/* That structure is used in OLED_put_masked_region() as a flag */
+enum OLED_mask{
+    /* Each enum parameter corresponds bitmask operation */
+    OLED_REPLACE = 0,   /* fb=region */
+    OLED_ADD,           /* fb|=region */
+    OLED_SUBTRACT,      /* fb&=~region */  
+    OLED_INTERSECT      /* fb^=region */
 
+};
 /* Lock type. Need to be volatile to prevent optimizations */
 /* 1 means unlocked, 0 means locked */
 typedef volatile uint8_t	lock_t;
@@ -276,3 +284,17 @@ OLED_err OLED_put_pixel(OLED *oled, uint8_t x, uint8_t y, bool pixel_state);
  * (!) Notice: method is not atomic. If required, protect it with lock
  */
 OLED_err OLED_put_rectangle(OLED *oled, uint8_t x_from, uint8_t y_from, uint8_t x_to, uint8_t y_to, enum OLED_params params);
+/*  OLED_put_masked_region() - puts region of pixels on frame-buffer
+*   @oled: OLED object
+*   @x:		horizonal coordinate (starting at 0, left-to-right)
+*   @y:		vertical coordinate (starting at 0, top-to-bottom)
+*   @region: the information(bytes) which you want to put in frame-buffer
+*   @x_size_region: width of the region
+*   @y_size_region: height of the region
+*   @flag: starts from 0 and ends with 3, used to configurate which operation *     with bytes will be made.
+*
+*   That function uses bitmask operations to put the region on the frame         *   buffer
+*
+*/
+void OLED_put_masked_region(OLED *oled,uint8_t x,uint8_t y,uint8_t *region,uint8_t x_size_region,uint8_t y_size_region,enum OLED_mask flag);
+
